@@ -1,25 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import './index.css'
+import { useState, useEffect } from 'react'
+import { Grid } from 'gridjs-react'
+import "gridjs/dist/theme/mermaid.css";
 
 function App() {
+
+  const data = [
+  ];
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ padding: '50px 100px 100px 100px' }}>
+      <p>Hello</p>
+      <Grid
+        data={[
+          ['Hello', 'World'],
+          ['Oi', 'You']
+        ]}
+        columns={['foo', 'bar']}
+        search={true}
+        pagination={{
+          enabled: true,
+          limit: 5,
+        }}
+      />
     </div>
-  );
+  )
+
 }
 
 export default App;
