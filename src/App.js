@@ -9,34 +9,11 @@ import "gridjs/dist/theme/mermaid.css";
 
 function App() {
 
-  const [events, setEvents] = useState(null)
 
-  const get_events = async (path) => {
-    try {
-      let { data, error, status } = await supabase
-        .from('events')
-        .select(`
-          name,
-          city,
-          state,
-          country,
-          start_date,
-          event_distances(
-            distance,
-            distance_units(
-              unit_name
-            )
-          )
-        `);
-      console.log('data: ', data)
-      console.log('status: ', status)
-      if (data) {
-        setEvents(data.name)
-      }
-    } catch (error) {
-      console.log('Error retrieving data: ', error.message)
-    }
-  }
+  // Need shared state for data for map and table,
+  // so time to move away from function to storing data in state
+
+  const [events, setEvents] = useState([]);
 
   // Regular object (✓):
   const events_json = [['foo'], ['bar']];
@@ -44,28 +21,29 @@ function App() {
   // Regular function (✓):
   function events_func(){
     return [['fooey'], ['barry']]
-  }
-
-  // Via URL:
+  };
 
   // Via supbase client (✓):
   // Needs error handling, null result handling, 
   // performance improvements, security etc. but works
   const events_supabase_func = async() => {
     let {data, error, status } = await supabase.from('events').select(`
+      id,
       name,
       url,
       city,
       state,
       country,
       start_date,
+      latitude,
+      longitude,
       event_distances(
         distance,
         distance_units(
           unit_name
         )
       )
-    `);
+    `)
     // Example equality filter:
     // .eq('name', 'Habanero Hundred');
     console.log('status: ', status)
@@ -77,35 +55,56 @@ function App() {
       return e;
     });
     console.log('data: ', data)
-    return data
-  }
+    setEvents(data)
+  };
 
+  useEffect(() => {
+    events_supabase_func()
+  }, []);
+
+  function remove_nulls(item) {
+    // console.log(item.latitude)
+    if (item.latitude == null || item.longitude == null) {
+      return false
+    } else {
+      return true
+    }
+  };
+
+  const EventMarkers = ({ data }) => {
+    // lat/lon can be null
+    console.log('EventMarkers data: ', data)
+    data = data.filter(remove_nulls)
+    console.log('Filtered EventMarkers data: ', data)
+    return data.map(event => (
+        <Marker
+          key={event.id}
+          position={[ event.latitude , event.longitude ]}
+        >
+          <Popup>{event.name}</Popup>
+        </Marker>
+    ))
+  };
 
   // Return JSX
   return (
     <div style={{ padding: '50px 100px 100px 100px' }}>
       <p>Map</p>
       <MapContainer
-          style={{ height:"400px", marginTop:"80px", marginBottom:'90px' }}
-          center={[51.505, -0.09]}
-          zoom={8}
+          style={{ height:"600px", marginTop:"80px", marginBottom:'90px' }}
+          center={[42, -110]}
+          zoom={4}
           scrollWheelZoom={true}
           nowrap={true}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={[51.505, -0.09]}>
-          <Popup>
-            A pretty CSS3 popup.
-            <br />
-            Easily customizable.
-          </Popup>
-        </Marker>
+        <EventMarkers data={events} />
       </MapContainer>
        <p>Events</p>
       <Grid
-        data={events_supabase_func}
+        data={events}
         // Columns must match data names:
         columns={
           [
@@ -115,6 +114,8 @@ function App() {
             'state',
             'country',
             'start_date',
+            {name: 'latitude', hidden: false},
+            {name: 'longitude', hidden: false},
             'event_distances'
           ]
         }
