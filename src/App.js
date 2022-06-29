@@ -1,8 +1,10 @@
 import './index.css'
+
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { Grid } from 'gridjs-react'
 import { html } from 'gridjs'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import "gridjs/dist/theme/mermaid.css";
 
 function App() {
@@ -82,7 +84,26 @@ function App() {
   // Return JSX
   return (
     <div style={{ padding: '50px 100px 100px 100px' }}>
-      <p>Hello</p>
+      <p>Map</p>
+      <MapContainer
+          style={{ height:"400px", marginTop:"80px", marginBottom:'90px' }}
+          center={[51.505, -0.09]}
+          zoom={8}
+          scrollWheelZoom={true}
+          nowrap={true}>
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={[51.505, -0.09]}>
+          <Popup>
+            A pretty CSS3 popup.
+            <br />
+            Easily customizable.
+          </Popup>
+        </Marker>
+      </MapContainer>
+       <p>Events</p>
       <Grid
         data={events_supabase_func}
         // Columns must match data names:
@@ -104,6 +125,8 @@ function App() {
           limit: 20,
         }}
       />
+      <br></br>
+
     </div>
   )
 
