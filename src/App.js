@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { Grid } from 'gridjs-react'
 import { html } from 'gridjs'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import "gridjs/dist/theme/mermaid.css";
 
 function App() {
@@ -16,12 +16,12 @@ function App() {
   const [events, setEvents] = useState([]);
 
   // Regular object (✓):
-  const events_json = [['foo'], ['bar']];
+  // const events_json = [['foo'], ['bar']];
 
   // Regular function (✓):
-  function events_func(){
-    return [['fooey'], ['barry']]
-  };
+  // function events_func(){
+  //   return [['fooey'], ['barry']]
+  // };
 
   // Via supbase client (✓):
   // Needs error handling, null result handling, 
