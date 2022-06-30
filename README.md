@@ -1,6 +1,6 @@
 # Ultrasearch Frontend
 
-React frontend for ultrasearch, a place to search for ultramarathons across the globe.
+React frontend for [ultrasearch.io](ultrasearch.io), a place to search for ultramarathons across the globe.
 
 ## Available Scripts
 
