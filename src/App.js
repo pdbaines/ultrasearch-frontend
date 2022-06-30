@@ -2,9 +2,11 @@ import './index.css'
 
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
+import { BrowserRouter } from "react-router-dom";
 
 import EventMap from './components/eventMap'
 import EventTable from './components/eventTable'
+import NavBar from './components/navBar'
 
 
 function App() {
@@ -64,13 +66,17 @@ function App() {
 
   // Return JSX
   return (
+    <div>
+    <div>
+      <BrowserRouter>
+        <NavBar />
+      </BrowserRouter>
+    </div>
     <div style={{ padding: '50px 100px 100px 100px' }}>
-      <p>Map</p>
       <EventMap events={events} />
-       <p>Events</p>
       <EventTable events={events} />
       <br></br>
-
+    </div>
     </div>
   )
 

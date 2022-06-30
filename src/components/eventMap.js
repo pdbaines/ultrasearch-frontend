@@ -19,7 +19,13 @@ const EventMarkers = ({ data }) => {
           key={event.id}
           position={[ event.latitude , event.longitude ]}
         >
-          <Popup>{event.name}</Popup>
+          <Popup>
+            <a href={event.url}>{event.name}</a>
+            <br></br>
+            {event.start_date}
+            <br></br>
+            {event.event_distances}
+          </Popup>
         </Marker>
     ))
 };

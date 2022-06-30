@@ -1,0 +1,11 @@
+.container {
+    padding: 1rem;
+    color: white;
+    background-color: cornflowerblue
+  }
+  
+.header {
+    background-color: #ffffff;
+    color: #000000;
+    font-weight: 700;
+}
