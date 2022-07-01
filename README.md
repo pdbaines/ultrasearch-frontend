@@ -1,6 +1,6 @@
-# Getting Started with Create React App
+# Ultrasearch Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React frontend for [ultrasearch.io](ultrasearch.io), a place to search for ultramarathons across the globe.
 
 ## Available Scripts
 

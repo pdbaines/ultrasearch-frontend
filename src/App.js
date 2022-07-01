@@ -2,10 +2,12 @@ import './index.css'
 
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
-import { Grid } from 'gridjs-react'
-import { html } from 'gridjs'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
-import "gridjs/dist/theme/mermaid.css";
+import { BrowserRouter } from "react-router-dom";
+
+import EventMap from './components/eventMap'
+import EventTable from './components/eventTable'
+import NavBar from './components/navBar'
+
 
 function App() {
 
@@ -16,12 +18,12 @@ function App() {
   const [events, setEvents] = useState([]);
 
   // Regular object (✓):
-  const events_json = [['foo'], ['bar']];
+  // const events_json = [['foo'], ['bar']];
 
   // Regular function (✓):
-  function events_func(){
-    return [['fooey'], ['barry']]
-  };
+  // function events_func(){
+  //   return [['fooey'], ['barry']]
+  // };
 
   // Via supbase client (✓):
   // Needs error handling, null result handling, 
@@ -62,72 +64,19 @@ function App() {
     events_supabase_func()
   }, []);
 
-  function remove_nulls(item) {
-    // console.log(item.latitude)
-    if (item.latitude == null || item.longitude == null) {
-      return false
-    } else {
-      return true
-    }
-  };
-
-  const EventMarkers = ({ data }) => {
-    // lat/lon can be null
-    console.log('EventMarkers data: ', data)
-    data = data.filter(remove_nulls)
-    console.log('Filtered EventMarkers data: ', data)
-    return data.map(event => (
-        <Marker
-          key={event.id}
-          position={[ event.latitude , event.longitude ]}
-        >
-          <Popup>{event.name}</Popup>
-        </Marker>
-    ))
-  };
-
   // Return JSX
   return (
+    <div>
+    <div>
+      <BrowserRouter>
+        <NavBar />
+      </BrowserRouter>
+    </div>
     <div style={{ padding: '50px 100px 100px 100px' }}>
-      <p>Map</p>
-      <MapContainer
-          style={{ height:"600px", marginTop:"80px", marginBottom:'90px' }}
-          center={[42, -110]}
-          zoom={4}
-          scrollWheelZoom={true}
-          nowrap={true}>
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <EventMarkers data={events} />
-      </MapContainer>
-       <p>Events</p>
-      <Grid
-        data={events}
-        // Columns must match data names:
-        columns={
-          [
-            {name: 'name', formatter: (_, row) => html(`<a href='${row.cells[1].data}'>${row.cells[0].data}</a>`)},
-            {name: 'url', hidden: true},
-            'city',
-            'state',
-            'country',
-            'start_date',
-            {name: 'latitude', hidden: false},
-            {name: 'longitude', hidden: false},
-            'event_distances'
-          ]
-        }
-        search={true}
-        sort={true}
-        pagination={{
-          enabled: true,
-          limit: 20,
-        }}
-      />
+      <EventMap events={events} />
+      <EventTable events={events} />
       <br></br>
-
+    </div>
     </div>
   )
 
