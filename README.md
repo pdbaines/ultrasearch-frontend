@@ -10,6 +10,9 @@ This react frontend provides an interface to search and visualize ultramarathon 
 
 The application is deployed via [vercel](vercel.com) with DNS and more managed by [Cloudflare](cloudflare.com).
 
+The underlying data is provided by [ultrasearch backend](https://github.com/pdbaines/ultrasearch) and interacted
+with using [Supabase](https://supabase.com) with RLS.
+
 ## Available Scripts
 
 In the project directory, you can run:
