@@ -16,8 +16,8 @@ const EventTable = ({events}) => {
                     'state',
                     'country',
                     'start_date',
-                    { name: 'latitude', hidden: false },
-                    { name: 'longitude', hidden: false },
+                    { name: 'latitude', hidden: true },
+                    { name: 'longitude', hidden: true },
                     'event_distances'
                 ]
             }
