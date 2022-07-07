@@ -1,12 +1,19 @@
 import './index.css'
 
-import { useState, useEffect } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { BrowserRouter } from "react-router-dom";
 
 import EventMap from './components/eventMap'
 import EventTable from './components/eventTable'
 import NavBar from './components/navBar'
+
+import { GridRowsProp } from '@mui/x-data-grid';
+
+const rows: GridRowsProp = [
+    { id: 1, name: 'John McQueen' },
+    { id: 2, name: 'Mary Stones' }
+];
 
 
 function App() {
@@ -58,6 +65,7 @@ function App() {
     });
     console.log('data: ', data)
     setEvents(data)
+    return data
   };
 
   useEffect(() => {
@@ -74,8 +82,13 @@ function App() {
     </div>
     <div style={{ padding: '50px 100px 100px 100px' }}>
       <EventMap events={events} />
-      <EventTable events={events} />
+        <div style={{ height: 800, width: '100%'}}>
+          <EventTable events={rows} />
+        </div>
       <br></br>
+    </div>
+    <div>
+    
     </div>
     </div>
   )
