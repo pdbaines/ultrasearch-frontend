@@ -10,6 +10,7 @@
     "@mui/material": "^5.8.7",
     "@mui/system": "^5.8.7",
     "@mui/x-data-grid": "^5.13.0",
+    "@mui/x-data-grid-pro": "^5.13.0",
     "@supabase/supabase-js": "^1.35.3",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",

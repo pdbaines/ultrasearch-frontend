@@ -33,7 +33,7 @@ const EventMarkers = ({ data }) => {
 const EventMap = ({events}) => {
     return (
       <MapContainer
-      style={{ height:"200px", marginTop:"10px", marginBottom:'10px' }}
+      style={{ height:"600px", marginTop:"10px", marginBottom:'10px' }}
       center={[42, -110]}
       zoom={4}
       scrollWheelZoom={true}

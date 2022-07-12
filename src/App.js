@@ -5,15 +5,8 @@ import { supabase } from './supabaseClient'
 import { BrowserRouter } from "react-router-dom";
 
 import EventMap from './components/eventMap'
-// import EventTable from './components/eventTable'
+import { EventTable, initialFilterModel, month_list } from './components/eventTable'
 import NavBar from './components/navBar'
-
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { GridFilterModel } from '@mui/x-data-grid';
-import { GridToolbar } from '@mui/x-data-grid';
-
-
-const maxRows = 250;
 
 const eventObj1 = {
   loading: true,
@@ -24,63 +17,7 @@ const eventObj1 = {
   page: 1
 }
 
-const eventObj2 = {
-  loading: false,
-  rows: [],
-  totalRows: 10,
-  rowsPerPageOptions: [2, 5, 10],
-  pageSize: 5,
-  page: 2
-}
-
-const initialFilterModel: GridFilterModel = {
-  items: [
-    { columnField: 'country', operatorValue: 'contains', value: 'USA' }
-  ]
-};
-
-const country_list = [
-  'USA', 'FRA', 'ESP'
-];
-const state_list = [
-  'AL', 'AK', 'AS', 'AR',
-  'CA', 'CO', 'CT',
-  'DE', 'DC',
-  'FL', 'FM',
-  'GA', 'GU',
-  'HI',
-  'ID', 'IL', 'IN', 'IA',
-  'KS', 'KY',
-  'LA',
-  'ME', 'MH', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT',
-  'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND',
-  'MP',
-  'OH', 'OK', 'OR',
-  'PW', 'PA', 'PR',
-  'RI',
-  'SC', 'SD',
-  'TN', 'TX',
-  'UT',
-  'VT', 'VI', 'VA',
-  'WA', 'WV', 'WI', 'WY'
-];
-
-// const month_list = [{value: 1, label: 'Jan'}, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-const month_list = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-
-const columns: GridColDef[] = [
-  // { field: 'id', headerName: 'Id' , width: 80 },
-  { field: 'name', headerName: 'Name', width: 400, filterable: false },
-  { field: 'start_date', headerName: 'Date', type: 'date', valueGetter: ({ value }) => value && new Date(value), width: 200 },
-  { field: 'month', headerName: 'Month', type: 'singleSelect', valueOptions: month_list},
-  { field: 'city', headerName: 'City', width: 300, filterable: false },
-  { field: 'state', headerName: 'State', width: 200, filterable: true, type: 'singleSelect', valueOptions: state_list },
-  { field: 'country', headerName: 'Country', type: 'singleSelect', valueOptions: country_list, width: 150 },
-  { field: 'render_event_distances', headerName: 'Distances', filterable: false, width: 400 }
-];
-
-
+const maxRows = 2000;
 
 function App() {
 
@@ -94,42 +31,6 @@ function App() {
   const [filterModel, setFilterModel] = useState(initialFilterModel);
 
   const updateEvents = (k, v) => setEvents((prev) => ({ ...prev, [k]: v}));
-
-  const EventTable = ({ current_events }) => {
-    console.log('In EventTable, events: ', current_events);
-    return (
-      <DataGrid
-      // initialState={initialState}
-      components={{ Toolbar: GridToolbar }}
-      density="compact"
-      pagination
-      //paginationMode='server'
-      loading={current_events.loading}
-      rowCount={current_events.totalRows}
-      rowsPerPageOptions={current_events.rowsPerPageOptions}
-      page={page}
-      pageSize={pageSize}
-      rows={current_events.rows}
-      columns={columns}
-      filterMode="server"
-      filterModel={filterModel}
-      onFilterModelChange={(newFilterModel) => setFilterModel(newFilterModel)}
-      onPageSizeChange={(val) => {setPageSize(val)}}
-      onPageChange={(val) => {setPage(val)}}
-      // onPageSizeChange={(tmp_events) => {
-      //   setEvents(
-      //     prevEventState => ({
-      //       ...prevEventState,
-      //       page: 1,
-      //       pageSize: current_events.pageSize + 1
-      //     })
-      //  )
-          // updateEvents("page", 1);
-          // updateEvents("pageSize", 20);
-      //}}
-      />
-    )
-  };
 
   // Regular object (✓):
   // const events_json = [['foo'], ['bar']];
@@ -159,83 +60,65 @@ function App() {
     console.log('events inside supabase func: ', events);
     console.log('pageSize in supabase func: ', pageSize);
     console.log('filterModel in supabase func: ', filterModel);
-    const fetch_field_string = `
-    id,
-    name,
-    url,
-    city,
-    state,
-    country,
-    start_date,
-    latitude,
-    longitude,
-    event_distances(
-      distance
-    )
-    `
-
-    // Needs to be conditional if there is a filter...
-    const filter_field = filterModel.items[0].columnField
-    const filter_value = filterModel.items[0].value
-
-    let query = supabase.from('events')
+    const search_table = 'event_full';
+    const fetch_field_string = `*`;
+ 
+    let query = supabase.from(search_table)
       .select(fetch_field_string, {count: 'estimated'});
 
-    // Conditional filtering:
-    if (filter_field && filter_field != 'month') {
-      query = query.eq(filter_field, filter_value);
+    // Add filters one-by-one:
+    function query_appender(filter_item) {
+
+      const filter_field = filter_item.columnField;
+      const filter_value = filter_item.value;
+      const filter_operator = filter_item.operatorValue;
+
+      // Conditional filtering:
+      if (filter_field && filter_field !== 'month') {
+        switch (filter_operator) {
+          case 'is': query = query.eq(filter_field, filter_value);
+          break;
+          case 'not': query = query.neq(filter_field, filter_value);
+          break;
+          case 'before': query = query.lt(filter_field, filter_value);
+          break;
+          case 'onOrBefore': query = query.lte(filter_field, filter_value);
+          break;
+          case 'after': query = query.gt(filter_field, filter_value);
+          break;
+          case 'onOrAfter': query = query.gte(filter_field, filter_value);
+          break;
+          case 'isAnyOf': query = query.in(filter_field, filter_value);
+          break;
+        }
+      }
     }
+
+    // Apply:
+    filterModel.items.forEach(query_appender);
 
     // Always max:
     query = query.limit(maxRows);
 
     let {data, error, status, count } = await query;
 
-
-    // TODO:
-    // conditional - needs to work for no filter
-    // filter on text is too slow
-    // need to clearly distinguish what triggers db query
-    // vs. client-side. Search client-side is fast.
-    //
-    // Server:
-    //  -- country
-    //  -- date (month only)
-    //  -- distance
-    //  -- all filters run on server, disable filtering on all other columns
-    //
-    // Client:
-    //  -- everything else
-
-    // Search:
-    // -- server side search for name only
-    //
-    // Or:
-    // -- cache_max
-    // -- result_set
-    // -- sort, search: no retrigger if result_set <= cache_max
-    //      else if result_set > cache_max, server-side query
-    // -- filter: always trigger
-
-    // Pagination: .range(0, 9)
-    // Example equality filter:
-    // .eq('name', 'Habanero Hundred');
     console.log('status: ', status)
     console.log('error: ', error)
     console.log('query count: ', count)
     console.log('data (pre-map): ', data)
 
     data = data.map(function(e) { 
-      e.render_event_distances = e.event_distances.flatMap(
-        x => x.distance + ' ' + x.distance_units.unit_name).join(', ');
+      e.render_event_distances = e.event_distance_json.filter(
+        x => !(x.distance == null)).flatMap(
+          x => x.distance + ' ' + x.unit_name).join(', ');
       e.month = month_list[new Date(e.start_date).getMonth()];
       return e;
     });
 
     // Need to do month filtering post-hoc:
-    if (filter_field && filter_field == 'month') {
-      data = data.filter(row => row.month == filter_value );
-    }
+    //if (filter_field && filter_field === 'month') {
+    //  data = data.filter(row => row.month === filter_value );
+    //}
 
 
     updateEvents("rows", data);
@@ -272,6 +155,12 @@ function App() {
         {/* Need <X /> signature instead of <X> </X> */}
         <EventTable
           current_events={events}
+          page={page}
+          pageSize={pageSize}
+          filterModel={filterModel}
+          setFilterModel={setFilterModel}
+          setPageSize={setPageSize}
+          setPage={setPage}
         />
         </div>
       <br></br>
