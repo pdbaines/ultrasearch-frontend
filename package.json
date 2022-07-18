@@ -7,6 +7,7 @@
     "@emotion/styled": "^11.9.3",
     "@inovua/reactdatagrid-community": "^4.20.1",
     "@mui/base": "^5.0.0-alpha.88",
+    "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.7",
     "@mui/system": "^5.8.7",
     "@mui/x-data-grid": "^5.13.0",
@@ -21,7 +22,7 @@
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.0.1",
     "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
