@@ -132,7 +132,6 @@ function App() {
       e.render_event_distances = e.event_distance_json.filter(
         x => !(x.distance == null)).flatMap(
           x => x.distance + ' ' + x.unit_name).join(', ');
-      e.month = month_list[new Date(e.start_date).getMonth()];
       return e;
     });
 
