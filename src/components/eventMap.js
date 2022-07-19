@@ -24,7 +24,7 @@ const EventMarkers = ({ data }) => {
             <br></br>
             {event.start_date}
             <br></br>
-            {event.event_distances}
+            {event.render_event_distances}
           </Popup>
         </Marker>
     ))
