@@ -1,7 +1,16 @@
+import * as React from 'react';
+
+import Box from '@mui/material/Box';
+import TextField, { TextFieldProps } from '@mui/material/TextField';
 import { Link } from '@mui/material';
-
-import { DataGridPro, GridColDef, GridFilterModel, GridToolbar } from '@mui/x-data-grid-pro';
-
+import SyncIcon from '@mui/icons-material/Sync';
+import {
+  DataGridPro,
+  GridColDef,
+  GridFilterModel,
+  GridToolbar,
+  GridFilterInputValueProps
+} from '@mui/x-data-grid-pro';
 
 
 export const initialFilterModel: GridFilterModel = {
@@ -12,7 +21,24 @@ export const initialFilterModel: GridFilterModel = {
 };
 
 const country_list = [
-  'USA', 'FRA', 'ESP'
+  'ARG', 'AUS', 'AUT',
+  'BEL', 'BGR', 'BIH', 'BMU', 'BRE',
+  'CAN', 'CHE', 'CHN', 'COL',
+  'DEU',
+  'ESP',
+  'FIN', 'FRA',
+  'GBR', 'GRC', 'HRV',
+  'IRL', 'ISL', 'ITA',
+  'JPN',
+  'LIE',
+  'MDG', 'MDV', 'MEX', 'MTQ', 'MUS', 'MYS',
+  'NLD', 'NOR', 'NZL',
+  'PER', 'POL', 'PRT',
+  'REU', 'RUS',
+  'SVK', 'SWE', 'THA', 'TUR', 'TZA',
+  'UKR', 'USA',
+  'VNM',
+  'ZAF', 'ZWE'
 ];
 
 const state_list = [
@@ -40,9 +66,98 @@ const state_list = [
 
 export const month_list = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+const SUBMIT_FILTER_STROKE_TIME = 1000;
+
+function DistanceInputInterval(props: GridFilterInputValueProps) {
+
+  // applyValue operates on GridFilterItem
+  const { item, applyValue, focusElementRef = null } = props;
+  const filterTimeout = React.useRef();
+  const [filterValueState, setFilterValueState] = React.useState(
+    item.value ?? '',
+  );
+  const [applying, setIsApplying] = React.useState(false);
+
+  React.useEffect(() => {
+    return () => {
+      clearTimeout(filterTimeout.current);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const itemValue = item.value ?? [undefined, undefined];
+    setFilterValueState(itemValue);
+  }, [item.value]);
+
+  const updateFilterValue = (lowerBound: string, upperBound: string) => {
+    clearTimeout(filterTimeout.current);
+    setFilterValueState([lowerBound, upperBound]);
+
+    setIsApplying(true);
+    filterTimeout.current = setTimeout(() => {
+      setIsApplying(false);
+      applyValue({ ...item, value: [lowerBound, upperBound] });
+    }, SUBMIT_FILTER_STROKE_TIME);
+  };
+
+  const handleUpperFilterChange: TextFieldProps['onChange'] = (event) => {
+    const newUpperBound = event.target.value;
+    updateFilterValue(filterValueState[0], newUpperBound);
+  };
+  const handleLowerFilterChange: TextFieldProps['onChange'] = (event) => {
+    const newLowerBound = event.target.value;
+    updateFilterValue(newLowerBound, filterValueState[1]);
+  };
+
+  return (
+    <Box
+      sx={{
+        display: 'inline-flex',
+        flexDirection: 'row',
+        alignItems: 'end',
+        height: 48,
+        pl: '20px',
+      }}
+    >
+      <TextField
+        name="lower-bound-input"
+        placeholder=""
+        label="From (km)"
+        variant="standard"
+        value={Number(filterValueState[0])}
+        onChange={handleLowerFilterChange}
+        type="number"
+        inputRef={focusElementRef}
+        sx={{ mr: 2 }}
+      />
+      <TextField
+        name="upper-bound-input"
+        placeholder=""
+        label="To (km)"
+        variant="standard"
+        value={Number(filterValueState[1])}
+        onChange={handleUpperFilterChange}
+        type="number"
+        InputProps={applying ? { endAdornment: <SyncIcon /> } : {}}
+      />
+    </Box>
+  );
+}
+
+const distanceOperators: GridFilterOperator[] = [
+  {
+    label: 'Between',
+    value: 'distanceBetween',
+    getApplyFilterFn: (filterItem: GridFilterItem) => {
+      // Filtering is done server side, we just update the filter values
+      return ({params}): boolean => {return true};
+    },
+    InputComponent: DistanceInputInterval,
+  },
+];
+
 
 const columns: GridColDef[] = [
-  // { field: 'id', headerName: 'Id' , width: 80 },
   { field: 'name',
     headerName: 'Name',
     width: 400, 
@@ -57,19 +172,25 @@ const columns: GridColDef[] = [
   { field: 'city', headerName: 'City', width: 300, filterable: false },
   { field: 'state', headerName: 'State', width: 200, filterable: true, type: 'singleSelect', valueOptions: state_list },
   { field: 'country', headerName: 'Country', type: 'singleSelect', valueOptions: country_list, width: 150 },
-  { field: 'render_event_distances', headerName: 'Distances', filterable: false, width: 400 }
+  {
+    field: 'render_event_distances',
+    headerName: 'Distances',
+    filterable: true,
+    filterOperators: distanceOperators,
+    width: 400
+  }
 ];
 
 
 export const EventTable = ({ current_events, page, pageSize, filterModel, setFilterModel, setPageSize, setPage }) => {
     console.log('In EventTable, events: ', current_events);
+    console.log('In EventTable, filterModel: ', filterModel);
     return (
       <DataGridPro
       initialState={{
         columns: {
           columnVisibilityModel: {
-            url: false,
-            traderName: false,
+            url: false
           },
         },
       }}

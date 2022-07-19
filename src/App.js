@@ -44,17 +44,17 @@ function App() {
   // Needs error handling, null result handling, 
   // performance improvements, security etc. but works
 
-  // To figure out:
-  // this isn't being triggered on update of pageSize
-  // the table is updating, the value is updating,
-  // but the data is not.
-  // So, if the initial fetch is 50 rows, and pageSize is 50,
-  // and you update pageSize to 20, it will adjust. If 
-  // you update pageSize to 100, it adjusts the table,
-  // but the data only has 50 rows so it doesn't do anything.
-
   // page and page size shouldn't change the query
   // only want to re-query on filter change
+
+  function get_distance_filter(filterModel) {
+    for (let i=0; i < filterModel.items.length; i++) {
+      if (filterModel.items[i].operatorValue === 'distanceBetween') {
+        return filterModel.items[i]
+      }
+    }
+    return null;
+  }
 
   const events_supabase_func = async(filterModel) => {
     console.log('events inside supabase func: ', events);
@@ -63,8 +63,20 @@ function App() {
     const search_table = 'event_full';
     const fetch_field_string = `*`;
  
-    let query = supabase.from(search_table)
-      .select(fetch_field_string, {count: 'estimated'});
+    // Base query can use event_full (fastest) if there is no
+    // distance filter. Else, need to use rpc call.
+    let query = null;
+    let distance_filter = get_distance_filter(filterModel);
+
+    if (distance_filter == null){
+      query = supabase.from(search_table)
+        .select(fetch_field_string, {count: 'estimated'});
+    } else {
+      query = supabase.rpc(
+        'distance_filtered_event_full',
+        { km_lower: distance_filter.value[0], km_upper: distance_filter.value[1]}
+      ).select(fetch_field_string, { count: 'estimated' })
+    }
 
     // Add filters one-by-one:
     function query_appender(filter_item) {
@@ -89,6 +101,8 @@ function App() {
           case 'onOrAfter': query = query.gte(filter_field, filter_value);
           break;
           case 'isAnyOf': query = query.in(filter_field, filter_value);
+          break;
+          default:
           break;
         }
       }
