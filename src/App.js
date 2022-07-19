@@ -74,8 +74,7 @@ function App() {
     } else {
       query = supabase.rpc(
         'distance_filtered_event_full',
-        { km_lower: distance_filter.value[0], km_upper: distance_filter.value[1]},
-        { count: 'estimated' }
+        { km_lower: distance_filter.value[0], km_upper: distance_filter.value[1]}
       ).select(fetch_field_string)
     }
 
@@ -87,7 +86,7 @@ function App() {
       const filter_operator = filter_item.operatorValue;
 
       // Conditional filtering:
-      if (filter_field && filter_field !== 'month') {
+      if (filter_field) {
         switch (filter_operator) {
           case 'is': query = query.eq(filter_field, filter_value);
           break;
@@ -117,10 +116,17 @@ function App() {
 
     let {data, error, status, count } = await query;
 
+    // Bug with counts for RPC call, so just use retrieved set size:
+    if (count == null) {
+      count = data.length;
+    }
+
     console.log('status: ', status)
     console.log('error: ', error)
     console.log('query count: ', count)
     console.log('data (pre-map): ', data)
+
+
 
     data = data.map(function(e) { 
       e.render_event_distances = e.event_distance_json.filter(
@@ -129,12 +135,6 @@ function App() {
       e.month = month_list[new Date(e.start_date).getMonth()];
       return e;
     });
-
-    // Need to do month filtering post-hoc:
-    //if (filter_field && filter_field === 'month') {
-    //  data = data.filter(row => row.month === filter_value );
-    //}
-
 
     updateEvents("rows", data);
     updateEvents("totalRows", Math.min(count, maxRows));

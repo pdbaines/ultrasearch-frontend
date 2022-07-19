@@ -6,6 +6,7 @@ RETURNS TABLE(
 	name text,
 	url text,
 	start_date date,
+        month integer,
 	city text,
 	state text,
 	country text,
@@ -22,6 +23,7 @@ SELECT
 	expanded.name,
 	expanded.url,
 	expanded.start_date,
+        expanded.month,
 	expanded.city,
 	expanded.state,
 	expanded.country,
@@ -39,6 +41,7 @@ FROM (
     		events.name,
     		events.url,
     		events.start_date,
+                events.month,
     		events.city,
     		events.state,
     		events.country,
@@ -53,6 +56,6 @@ FROM (
 	WHERE expanded_unfiltered.event_km_single >= km_lower
 	AND expanded_unfiltered.event_km_single <= km_upper
 ) as expanded
-GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14
+GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15
 $$
 LANGUAGE SQL;

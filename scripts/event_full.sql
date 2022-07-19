@@ -7,6 +7,7 @@ AS
     events.name,
     events.url,
     events.start_date,
+    extract(month from events.start_date) as "month",
     events.city,
     events.state,
     events.country,

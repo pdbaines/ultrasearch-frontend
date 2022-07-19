@@ -6,6 +6,18 @@ React frontend for [ultrasearch.io](ultrasearch.io), a place to search for ultra
 
 This react frontend provides an interface to search and visualize ultramarathon data from across the world.
 
+## Development
+
+```
+npm start
+```
+
+## Testing
+
+```
+npm test
+```
+
 ## Deployment
 
 The application is deployed via [vercel](vercel.com) with DNS and more managed by [Cloudflare](cloudflare.com).

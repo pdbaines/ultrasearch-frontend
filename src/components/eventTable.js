@@ -9,7 +9,8 @@ import {
   GridColDef,
   GridFilterModel,
   GridToolbar,
-  GridFilterInputValueProps
+  GridFilterInputValueProps,
+  getGridDateOperators
 } from '@mui/x-data-grid-pro';
 
 
@@ -64,7 +65,20 @@ const state_list = [
   'WA', 'WV', 'WI', 'WY'
 ];
 
-export const month_list = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+export const month_list = [
+  { value: 1, label: 'Jan'},
+  { value: 2, label: 'Feb'},
+  { value: 3, label: 'Mar'},
+  { value: 4, label: 'Apr'},
+  { value: 5, label: 'May'},
+  { value: 6, label: 'Jun'},
+  { value: 7, label: 'Jul'},
+  { value: 8, label: 'Aug'},
+  { value: 9, label: 'Sep'},
+  { value: 10, label: 'Oct'},
+  { value: 11, label: 'Nov'},
+  { value: 12, label: 'Dec'}
+];
 
 const SUBMIT_FILTER_STROKE_TIME = 1000;
 
@@ -167,8 +181,26 @@ const columns: GridColDef[] = [
     }
   },
   { field: 'url', headerName: 'url', filterable: false},
-  { field: 'start_date', headerName: 'Date', type: 'date', valueGetter: ({ value }) => value && new Date(value), width: 200 },
-  { field: 'month', headerName: 'Month', type: 'singleSelect', valueOptions: month_list},
+  {
+    field: 'start_date',
+    headerName: 'Date',
+    type: 'date',
+    valueGetter: ({ value }) => value && new Date(value),
+    width: 200,
+    filterOperators: getGridDateOperators().filter(
+      (operator) =>
+        operator.value === 'is' ||
+        operator.value === 'onOrBefore' ||
+        operator.value === 'onOrAfter'
+    )
+  },
+  {
+    field: 'month',
+    headerName: 'Month',
+    type: 'singleSelect',
+    valueOptions: month_list,
+    valueGetter: ({ value }) => value.label
+  },
   { field: 'city', headerName: 'City', width: 300, filterable: false },
   { field: 'state', headerName: 'State', width: 200, filterable: true, type: 'singleSelect', valueOptions: state_list },
   { field: 'country', headerName: 'Country', type: 'singleSelect', valueOptions: country_list, width: 150 },
