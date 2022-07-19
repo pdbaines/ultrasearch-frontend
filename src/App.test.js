@@ -1,8 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders header', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const mapElement = screen.getByText('UltraSearch');
+  expect(mapElement).toBeInTheDocument();
+});
+
+test('renders table', async () => {
+  render(<App />);
+  const tableElement = await screen.getByText('Name');
+  expect(tableElement).toBeInTheDocument();
 });
