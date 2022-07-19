@@ -74,8 +74,9 @@ function App() {
     } else {
       query = supabase.rpc(
         'distance_filtered_event_full',
-        { km_lower: distance_filter.value[0], km_upper: distance_filter.value[1]}
-      ).select(fetch_field_string, { count: 'estimated' })
+        { km_lower: distance_filter.value[0], km_upper: distance_filter.value[1]},
+        { count: 'estimated' }
+      ).select(fetch_field_string)
     }
 
     // Add filters one-by-one:
@@ -146,9 +147,6 @@ function App() {
   useEffect(() => {
     updateEvents("loading", true);
     events_supabase_func(filterModel);
-    //updateEvents("rows", fresh_data);
-    // Need to craft a query based on
-    // filters, page etc. 
     updateEvents("loading", false);
   }, [pageSize, filterModel]);
 
