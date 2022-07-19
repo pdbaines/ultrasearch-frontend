@@ -185,7 +185,6 @@ const columns: GridColDef[] = [
     field: 'start_date',
     headerName: 'Date',
     type: 'date',
-    valueGetter: ({ value }) => value && new Date(value),
     width: 200,
     filterOperators: getGridDateOperators().filter(
       (operator) =>
@@ -199,7 +198,7 @@ const columns: GridColDef[] = [
     headerName: 'Month',
     type: 'singleSelect',
     valueOptions: month_list,
-    valueGetter: ({ value }) => value.label
+    valueGetter: ({ value }) => month_list[value - 1].label
   },
   { field: 'city', headerName: 'City', width: 300, filterable: false },
   { field: 'state', headerName: 'State', width: 200, filterable: true, type: 'singleSelect', valueOptions: state_list },
